@@ -2,9 +2,9 @@
 
 ---
 
-## 🧠 WHAT HAPPENS INSIDE KUBERNETES
+## WHAT HAPPENS INSIDE KUBERNETES
 
-### Step 1️⃣: Namespace Marked for Deletion
+### Step 1: Namespace Marked for Deletion
 
 ```bash
 kubectl get ns payments -o yaml
@@ -19,7 +19,7 @@ Once you delete a namespace, Kubernetes **does not remove it immediately**. It i
 
 ---
 
-### Step 2️⃣: All Resources Are Marked for Deletion (Cascade Delete)
+### Step 2: All Resources Are Marked for Deletion (Cascade Delete)
 
 Kubernetes performs a **cascading delete**, meaning **everything inside the namespace** is scheduled for deletion.
 
@@ -35,11 +35,11 @@ Resources affected:
 - HPA (HorizontalPodAutoscaler)
 - PDB (PodDisruptionBudget)
 
-> ⚠️ At this point, workloads start disappearing and traffic begins to fail.
+> At this point, workloads start disappearing and traffic begins to fail.
 
 ---
 
-### Step 3️⃣: Finalizers Slow Everything Down
+### Step 3: Finalizers Slow Everything Down
 
 Finalizers are special hooks that **block deletion** until cleanup is completed.
 
@@ -87,36 +87,28 @@ kubectl get all -n payments
 kubectl get pods -n payments
 ```
 
-> ❗ Namespace stays in **Terminating** state until all finalizers are cleared.
+> Namespace stays in **Terminating** state until all finalizers are cleared.
 
 ---
 
-## 😱 WHAT USERS EXPERIENCE
+## WHAT USERS EXPERIENCE
 
-### 👤 For Users
+### For Users
 
 - 502 / 503 errors
 - Blank pages
 - Payment failures
 - Application unavailable
 
-### 📊 For Monitoring & Observability
+### For Monitoring & Observability
 
 - Error rate spikes
 - Latency (p99) explodes
 - Alerts firing non-stop
 
-### 🔄 For Kafka / Async Systems
+## CAN ARGOCD SAVE YOU?
 
-- Consumers crash
-- Offsets stop committing
-- Consumer lag / backlog increases
-
----
-
-## 🧩 CAN ARGOCD SAVE YOU?
-
-### Scenario 1️⃣: Namespace Is Git-Managed
+### Scenario 1: Namespace Is Git-Managed
 
 If ArgoCD manages the namespace:
 
@@ -128,18 +120,18 @@ metadata:
 
 **What happens?**
 
-- ✅ ArgoCD recreates the namespace
-- ❌ Resources inside are still gone
+- ArgoCD recreates the namespace
+- Resources inside are still gone
 
 ---
 
-### Scenario 2️⃣: ArgoCD Auto-Sync Enabled
+### Scenario 2: ArgoCD Auto-Sync Enabled
 
 - Namespace recreated
 - Deployments recreated
 - Pods start coming up
 
-⚠️ But problems remain:
+  But problems remain:
 
 - Secrets may be missing
 - PVCs may not bind
@@ -147,9 +139,9 @@ metadata:
 
 ---
 
-## 🛠️ HOW DO YOU RECOVER (REAL WORLD)
+## HOW DO YOU RECOVER (REAL WORLD)
 
-### ✅ Recovery Option 1: GitOps Redeploy (Best Case)
+### Recovery Option 1: GitOps Redeploy (Best Case)
 
 Steps:
 
@@ -170,11 +162,11 @@ Works **only if**:
 
 ---
 
-### ⚠️ Recovery Option 2: PVC & Data Recovery
+### Recovery Option 2: PVC & Data Recovery
 
 If PVCs were deleted:
 
-- ❌ Data is **GONE**
+- Data is **GONE**
 
 Only backups can help:
 
@@ -182,26 +174,26 @@ Only backups can help:
 - CSI snapshots
 - Backup tools (Velero)
 
-🔥 **Hard truth:**
+**Hard truth:**
 
 > Kubernetes does **NOT** back up your data by default.
 
 ---
 
-### ❌ Recovery Option 3: Manual Recreation (Worst Case)
+### Recovery Option 3: Manual Recreation (Worst Case)
 
 - Recreate secrets
 - Reconfigure ingress
 - Reattach DNS
 - Restart external integrations
 
-⏱️ This can take **hours** during an outage.
+  This can take **hours** during an outage.
 
 ---
 
-## 🛡️ HOW TO PREVENT THIS FOREVER
+## HOW TO PREVENT THIS FOREVER
 
-### 1️⃣ Use RBAC Properly
+### 1: Use RBAC Properly
 
 Allow only read access:
 
@@ -209,11 +201,11 @@ Allow only read access:
 verbs: ["get", "list"]
 ```
 
-❌ **No delete access for humans in prod**
+ **No delete access for humans in prod**
 
 ---
 
-### 2️⃣ Disable Namespace Deletion
+### 2: Disable Namespace Deletion
 
 Use admission controllers:
 
@@ -226,7 +218,7 @@ Example rule:
 
 ---
 
-### 3️⃣ Separate kubeconfig Contexts
+### 3: Separate kubeconfig Contexts
 
 ```bash
 kubectl config use-context prod
@@ -239,7 +231,7 @@ Best practices:
 
 ---
 
-### 4️⃣ Golden SRE Rule
+### 4: Golden SRE Rule
 
 🚫 **Humans should NOT have delete access in production.**
 
